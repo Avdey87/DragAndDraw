@@ -5,11 +5,15 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.nfc.Tag;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -21,7 +25,27 @@ public class BoxDrawingView extends View {
     private Paint mBoxPaint;
     private Paint mBackgroundPaint;
 
-       //используется при создании представления в коде
+    @Nullable
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("instanceState", super.onSaveInstanceState());
+        bundle.putSerializable("test", (Serializable) mBoxen);
+        return bundle;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            mBoxen = (ArrayList<Box>) bundle.getSerializable("test");
+            super.onRestoreInstanceState(bundle.getParcelable("instanceState"));
+            return;
+        }
+        super.onRestoreInstanceState(state);
+    }
+
+    //используется при создании представления в коде
     public BoxDrawingView(Context context) {
         this(context, null);
     }
@@ -70,6 +94,8 @@ public class BoxDrawingView extends View {
         Log.i(TAG, action + "at x=" + current.x + ", y=" + current.y);
         return true;
     }
+
+
 
     @Override
     protected void onDraw(Canvas canvas) {
